@@ -111,7 +111,7 @@ export default function HomeScreen() {
               onPress={() => router.push({ pathname: '/rules', params: { id: '1', name: 'COLOR BLOCKS' } })}
             >
               <View style={styles.cardWrapper}>
-                <Card.Content style={[styles.gameCardContent, { backgroundColor: '#2E2A3C' }]}>
+                <Card.Content style={[styles.gameCardContent, { backgroundColor: '#2F1E38' }]}>
                   <Text style={[styles.gameCardTitle, { color: '#FFC107' }]}>COLOR BLOCKS</Text>
                   <View style={[styles.gameCardDivider, { backgroundColor: '#FFC107' }]} />
                   <View style={styles.gameImageContainer}>
