@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, View, TouchableOpacity, Platform, Dimensions, PanResponder } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Platform, Dimensions, PanResponder, Image } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,7 +18,6 @@ export default function RulesScreen() {
 
   // 默认难度设置为中等
   const [difficulty, setDifficulty] = useState(50);
-  const [level, setLevel] = useState(1);
 
   // 是否在Web环境
   const isWeb = Platform.OS === 'web';
@@ -34,11 +33,6 @@ export default function RulesScreen() {
           const trackWidth = 280;
           const newValue = Math.max(0, Math.min(100, ((gestureState.moveX - 40) / trackWidth) * 100));
           setDifficulty(newValue);
-
-          // 根据难度设置关卡
-          if (newValue < 30) setLevel(1);
-          else if (newValue < 70) setLevel(5);
-          else setLevel(10);
         }
       },
     })
@@ -61,13 +55,13 @@ export default function RulesScreen() {
     switch (id) {
       case '1': // COLOR BLOCKS
         return [
-          "✅ Stack falling blocks to complete full rows!",
-          "⚠️ Game ends when the blocks reach the top of the screen."
+          "Stack falling blocks to complete full rows!",
+          "Game ends when the blocks reach the top of the screen."
         ];
       default:
         return [
-          "✅ Follow the game instructions to win!",
-          "⚠️ Have fun and challenge yourself!"
+          "Pour water between the tubes until each tube contains only one colour!",
+          "You can only pour water of the same color onto water already in a tube."
         ];
     }
   };
@@ -78,8 +72,7 @@ export default function RulesScreen() {
       pathname: '/play',
       params: {
         id,
-        difficulty: getDifficultyInfo().text,
-        level
+        difficulty: getDifficultyInfo().text
       }
     });
   };
@@ -98,25 +91,44 @@ export default function RulesScreen() {
   const difficultyInfo = getDifficultyInfo();
   const rules = getGameRules();
 
-  // 渲染表情图标
+  // 渲染表情图标 - 修改为符合UI稿的卡通表情
   const renderEmoji = () => {
+    // 不同难度显示不同表情
     switch (difficultyInfo.emoji) {
       case 'easy':
         return (
           <View style={[styles.emojiCircle, { backgroundColor: '#4CAF50' }]}>
-            <Ionicons name="happy-outline" size={46} color="#FFFFFF" />
+            <View style={styles.emojiInner}>
+              <View style={styles.eyeContainer}>
+                <View style={styles.eye} />
+                <View style={styles.eye} />
+              </View>
+              <View style={styles.smile} />
+            </View>
           </View>
         );
       case 'medium':
         return (
           <View style={[styles.emojiCircle, { backgroundColor: '#FF9800' }]}>
-            <Ionicons name="glasses-outline" size={46} color="#FFFFFF" />
+            <View style={styles.emojiInner}>
+              <View style={styles.eyeContainer}>
+                <View style={[styles.eye, styles.eyeMedium]} />
+                <View style={[styles.eye, styles.eyeMedium]} />
+              </View>
+              <View style={styles.mouthMedium} />
+            </View>
           </View>
         );
       case 'hard':
         return (
           <View style={[styles.emojiCircle, { backgroundColor: '#F44336' }]}>
-            <Ionicons name="sad-outline" size={46} color="#FFFFFF" />
+            <View style={styles.emojiInner}>
+              <View style={styles.eyeContainer}>
+                <View style={[styles.eye, styles.eyeHard]} />
+                <View style={[styles.eye, styles.eyeHard]} />
+              </View>
+              <View style={styles.frownHard} />
+            </View>
           </View>
         );
     }
@@ -127,60 +139,46 @@ export default function RulesScreen() {
       {/* 背景图案 - 半透明的游戏元素 */}
       <View style={styles.backgroundPattern}></View>
 
-      {/* 顶部区域分割 */}
-      <View style={styles.topColorBand}></View>
+      {/* 顶部区域 - 使用深紫色渐变 */}
+      <LinearGradient
+        colors={['#3a2156', '#44285e']}
+        style={styles.topBackground}
+      />
 
       {/* 顶部导航栏 */}
-      <LinearGradient
-        colors={['#8A2BE2', '#9932CC']}
-        style={styles.header}
-      >
+      <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <Ionicons name="chevron-back" size={24} color="white" />
+          <Ionicons name="chevron-back" size={28} color="white" />
         </TouchableOpacity>
 
         <Text style={styles.title}>{name}</Text>
 
         <TouchableOpacity style={styles.starButton}>
-          <Ionicons name="star" size={24} color="white" />
+          <Ionicons name="star-outline" size={28} color="white" />
         </TouchableOpacity>
-      </LinearGradient>
+      </View>
 
       {/* 主内容区域 */}
       <View style={styles.content}>
-        {/* 游戏规则说明 */}
-        <View style={styles.rulesContainer}>
-          {rules.map((rule, index) => (
-            <Text
-              key={index}
-              style={[
-                styles.ruleText,
-                index === 0 ? styles.primaryRule : styles.secondaryRule
-              ]}
-            >
-              {rule}
-            </Text>
-          ))}
-        </View>
 
         {/* 难度调节区域 */}
         <View style={styles.difficultyContainer}>
-          {/* 表情符号 */}
+          {/* 卡通表情 */}
           {renderEmoji()}
 
           <Text style={styles.difficultyText}>{difficultyInfo.text}</Text>
 
-          {/* 滑动条 */}
+          {/* 滑动条 - 更粗、带渐变 */}
           <View
             style={styles.sliderContainer}
             ref={sliderRef}
             {...panResponder.panHandlers}
           >
             <LinearGradient
-              colors={['#FFA500', '#4169E1']}
+              colors={['#FF9800', '#CCCCCC', '#4169E1']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.sliderTrack}
@@ -202,34 +200,11 @@ export default function RulesScreen() {
             onPress={startGame}
           >
             <Text style={styles.playButtonText}>PLAY</Text>
-            <Text style={styles.levelText}>Level {level}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.helpButton}>
             <Text style={styles.helpButtonText}>?</Text>
           </TouchableOpacity>
-        </View>
-
-        {/* 底部装饰 - 草地和云朵 */}
-        <View style={styles.bottomDecoration}>
-          <LinearGradient
-            colors={['#7CFC00', '#228B22']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={styles.grassImage}
-          />
-
-          {/* 云朵装饰 */}
-          <View style={[styles.cloud, styles.cloud1]}>
-            <View style={[styles.cloudBump, styles.cloudBump1]} />
-            <View style={[styles.cloudBump, styles.cloudBump2]} />
-            <View style={[styles.cloudBump, styles.cloudBump3]} />
-          </View>
-
-          <View style={[styles.cloud, styles.cloud2]}>
-            <View style={[styles.cloudBump, styles.cloudBump1]} />
-            <View style={[styles.cloudBump, styles.cloudBump2]} />
-          </View>
         </View>
       </View>
     </Container>
@@ -241,13 +216,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF5E8',
   },
-  topColorBand: {
+  topBackground: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: 150,
-    backgroundColor: '#8A2BE2',
+    height: 180,
     zIndex: -1,
   },
   backgroundPattern: {
@@ -255,102 +229,176 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
-    opacity: 0.05,
-    backgroundColor: '#FFF',
-    zIndex: -2,
+    height: 180,
+    opacity: 0.1,
+    zIndex: 0,
+    backgroundColor: 'transparent',
+    // 可以添加一个背景图案
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    elevation: 4,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 16,
+    zIndex: 1,
   },
   backButton: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: 'rgba(255, 182, 193, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  starButton: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,
+  },
+  starButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
     textTransform: 'uppercase',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    textShadowRadius: 3,
   },
   content: {
     flex: 1,
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 10,
   },
   rulesContainer: {
-    marginTop: 30,
+    marginTop: 20,
     alignItems: 'center',
     width: '100%',
     maxWidth: 500,
   },
+  ruleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 20,
+    width: '100%',
+  },
+  ruleIconContainer: {
+    marginRight: 10,
+    marginTop: 4,
+  },
+  checkIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    backgroundColor: '#8BC34A',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  warningIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FFC107',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   ruleText: {
-    fontSize: 22,
-    textAlign: 'center',
-    marginBottom: 25,
+    flex: 1,
+    fontSize: 20,
     fontWeight: '600',
-    lineHeight: 32,
+    lineHeight: 30,
   },
   primaryRule: {
     color: '#9932CC',
   },
   secondaryRule: {
-    color: '#444',
+    color: '#4A4A4A',
   },
   difficultyContainer: {
-    marginTop: 40,
+    marginTop: 30,
+    marginBottom: 30,
     alignItems: 'center',
   },
   emojiCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 4,
-    borderColor: '#FFF',
-    marginBottom: 15,
-    elevation: 5,
+    borderWidth: 5,
+    borderColor: '#000',
+    marginBottom: 20,
+    elevation: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowRadius: 5,
+  },
+  emojiInner: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#FFEB3B',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#000',
+  },
+  eyeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: 40,
+    marginBottom: 10,
+  },
+  eye: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#000',
+  },
+  eyeMedium: {
+    transform: [{ scaleY: 0.7 }],
+  },
+  eyeHard: {
+    transform: [{ scaleY: 0.5 }],
+  },
+  smile: {
+    width: 30,
+    height: 15,
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15,
+    borderWidth: 2,
+    borderTopWidth: 0,
+    borderColor: '#000',
+  },
+  mouthMedium: {
+    width: 30,
+    height: 6,
+    backgroundColor: '#000',
+    borderRadius: 2,
+  },
+  frownHard: {
+    width: 30,
+    height: 15,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
+    borderWidth: 2,
+    borderBottomWidth: 0,
+    borderColor: '#000',
   },
   difficultyText: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#FF8C00',
-    marginBottom: 25,
+    fontSize: 40,
+    fontWeight: '700',
+    color: '#F8961D',
+    marginBottom: 20,
     letterSpacing: 2,
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowColor: 'rgba(0, 0, 0, 0.15)',
     textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 1,
+    textShadowRadius: 2,
   },
   sliderContainer: {
     position: 'relative',
@@ -360,29 +408,29 @@ const styles = StyleSheet.create({
   },
   sliderTrack: {
     position: 'absolute',
-    top: 20,
+    top: 18,
     left: 0,
     width: 280,
-    height: 12,
+    height: 14,
     borderRadius: 10,
     borderWidth: 2,
     borderColor: '#FFF',
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
   },
   sliderThumb: {
     position: 'absolute',
-    top: 11,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    top: 8,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: 'white',
     borderWidth: 2,
     borderColor: '#FF8C00',
-    transform: [{ translateX: -15 }], // 居中调整
+    transform: [{ translateX: -17 }], // 居中调整
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
@@ -398,31 +446,33 @@ const styles = StyleSheet.create({
   playButtonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 50,
-    justifyContent: 'center',
+    marginTop: 40,
+    justifyContent: 'space-between',
     width: '100%',
+    maxWidth: 380,
+    paddingHorizontal: 10,
   },
   playButton: {
     backgroundColor: '#FF8C00',
-    paddingVertical: 18,
+    paddingVertical: 15,
     paddingHorizontal: 60,
     borderRadius: 15,
-    elevation: 8,
+    elevation: 10,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
     borderWidth: 3,
     borderColor: '#FFA500',
   },
   playButtonText: {
     color: 'white',
-    fontSize: 38,
+    fontSize: 40,
     fontWeight: 'bold',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    textShadowRadius: 3,
   },
   levelText: {
     color: 'white',
@@ -437,12 +487,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#9932CC',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 25,
-    elevation: 5,
+    elevation: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
     borderWidth: 3,
     borderColor: '#A64CE3',
   },
@@ -456,6 +505,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: 100,
+    zIndex: -1,
   },
   grassImage: {
     width: '100%',
@@ -465,8 +515,9 @@ const styles = StyleSheet.create({
   },
   cloud: {
     position: 'absolute',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'white',
     borderRadius: 20,
+    zIndex: 1,
   },
   cloud1: {
     width: 100,
@@ -482,7 +533,7 @@ const styles = StyleSheet.create({
   },
   cloudBump: {
     position: 'absolute',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'white',
     borderRadius: 50,
   },
   cloudBump1: {
