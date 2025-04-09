@@ -6,6 +6,7 @@ import { AppearanceProvider, useColorScheme } from 'react-native-appearance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { lightTheme, darkTheme, AppColorScheme } from './src/utils/theme';
 import { GameProvider } from './src/context/GameContext';
+import { AudioProvider } from './src/services/AudioService';
 import AppNavigator from './src/navigation/AppNavigator';
 
 export default function App() {
@@ -53,10 +54,12 @@ export default function App() {
     <SafeAreaProvider>
       <AppearanceProvider>
         <PaperProvider theme={theme}>
-          <GameProvider>
-            <StatusBar style={theme === darkTheme ? 'light' : 'dark'} />
-            <AppNavigator />
-          </GameProvider>
+          <AudioProvider>
+            <GameProvider>
+              <StatusBar style={theme === darkTheme ? 'light' : 'dark'} />
+              <AppNavigator />
+            </GameProvider>
+          </AudioProvider>
         </PaperProvider>
       </AppearanceProvider>
     </SafeAreaProvider>
