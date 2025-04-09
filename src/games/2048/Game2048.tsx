@@ -66,9 +66,9 @@ const Game2048: React.FC = () => {
   // 使用AudioManager处理音频
   const audioManager = useAudioManager({
     sounds: {
-      // background: require('../../../assets/sounds/background.mp3'),
-      // move: require('../../../assets/sounds/move.mp3'),
-      // merge: require('../../../assets/sounds/merge.mp3')
+      // background: require('../../../assets/sounds/background.wav'),
+      // move: require('../../../assets/sounds/move.wav'),
+      // merge: require('../../../assets/sounds/merge.wav')
     },
     options: {
       background: { isLooping: true, volume: 0.4 },
