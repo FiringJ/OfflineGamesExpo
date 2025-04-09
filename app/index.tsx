@@ -108,14 +108,14 @@ export default function HomeScreen() {
             <Card
               style={styles.gameCard}
               mode="elevated"
-              onPress={() => router.push('/play?id=1')}
+              onPress={() => router.push({ pathname: '/rules', params: { id: '1', name: 'COLOR BLOCKS' } })}
             >
               <View style={styles.cardWrapper}>
                 <Card.Content style={[styles.gameCardContent, { backgroundColor: '#2E2A3C' }]}>
                   <Text style={[styles.gameCardTitle, { color: '#FFC107' }]}>COLOR BLOCKS</Text>
                   <View style={[styles.gameCardDivider, { backgroundColor: '#FFC107' }]} />
                   <View style={styles.gameImageContainer}>
-                    <Image source={require('../assets/tetris.png')} style={styles.gameImage} resizeMode="contain" />
+                    <Image source={require('../assets/cards/color-blocks.png')} style={styles.gameImage} resizeMode="contain" />
                   </View>
                 </Card.Content>
               </View>
@@ -125,7 +125,7 @@ export default function HomeScreen() {
             <Card
               style={styles.gameCard}
               mode="elevated"
-              onPress={() => router.push('/play?id=4')}
+              onPress={() => router.push({ pathname: '/rules', params: { id: '4', name: 'BLOCK FILL' } })}
             >
               <View style={styles.cardWrapper}>
                 <Card.Content style={[styles.gameCardContent, { backgroundColor: '#222B2D' }]}>
@@ -142,7 +142,7 @@ export default function HomeScreen() {
             <Card
               style={styles.gameCard}
               mode="elevated"
-              onPress={() => router.push('/play?id=5')}
+              onPress={() => router.push({ pathname: '/rules', params: { id: '5', name: 'WATER SORT' } })}
             >
               <View style={styles.cardWrapper}>
                 <Card.Content style={[styles.gameCardContent, { backgroundColor: '#412C50' }]}>
@@ -159,7 +159,7 @@ export default function HomeScreen() {
             <Card
               style={styles.gameCard}
               mode="elevated"
-              onPress={() => router.push('/play?id=2')}
+              onPress={() => router.push({ pathname: '/rules', params: { id: '2', name: 'FRUIT MERGE' } })}
             >
               <View style={styles.cardWrapper}>
                 <Card.Content style={[styles.gameCardContent, { backgroundColor: '#FFE8C4' }]}>
@@ -176,7 +176,7 @@ export default function HomeScreen() {
             <Card
               style={styles.gameCard}
               mode="elevated"
-              onPress={() => router.push('/play?id=6')}
+              onPress={() => router.push({ pathname: '/rules', params: { id: '6', name: 'FLAPPY JUMP' } })}
             >
               <View style={styles.cardWrapper}>
                 <Card.Content style={[styles.gameCardContent, { backgroundColor: '#FFEEC8' }]}>
@@ -196,7 +196,7 @@ export default function HomeScreen() {
             <Card
               style={styles.gameCard}
               mode="elevated"
-              onPress={() => router.push('/play?id=3')}
+              onPress={() => router.push({ pathname: '/rules', params: { id: '3', name: 'SPIDERETTE' } })}
             >
               <View style={styles.cardWrapper}>
                 <Card.Content style={[styles.gameCardContent, { backgroundColor: '#1A1A2E' }]}>
@@ -311,12 +311,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 5,
   },
   gameImage: {
-    width: '85%',
-    height: '85%',
-    borderRadius: 10,
+    width: '100%',
+    height: '100%',
+    borderRadius: 0,
   },
   newBadge: {
     position: 'absolute',

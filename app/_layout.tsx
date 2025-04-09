@@ -33,7 +33,7 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="play" options={{ headerShown: false }} />
-        <Stack.Screen name="explore" options={{ headerShown: false }} />
+        <Stack.Screen name="rules" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
