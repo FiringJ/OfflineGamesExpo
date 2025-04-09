@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { lightTheme, darkTheme, AppColorScheme } from './src/utils/theme';
 import { GameProvider } from './src/context/GameContext';
 import { AudioProvider } from './src/services/AudioService';
-import AppNavigator from './src/navigation/AppNavigator';
+import { Text } from 'react-native';
 
 export default function App() {
   // 系统颜色模式
@@ -57,7 +57,7 @@ export default function App() {
           <AudioProvider>
             <GameProvider>
               <StatusBar style={theme === darkTheme ? 'light' : 'dark'} />
-              <AppNavigator />
+              <Text>已迁移到Expo Router，此文件不再使用</Text>
             </GameProvider>
           </AudioProvider>
         </PaperProvider>
