@@ -1,5 +1,4 @@
 import { DefaultTheme, configureFonts, MD3DarkTheme } from 'react-native-paper';
-import { MD3Colors } from 'react-native-paper/lib/typescript/src/types';
 
 // 定义自定义字体配置
 const fontConfig = {
