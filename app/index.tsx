@@ -4,6 +4,7 @@ import { Text, Card, useTheme, IconButton } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { GameProvider } from '../src/context/GameContext';
 import { Audio } from 'expo-av';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const theme = useTheme();
@@ -21,7 +22,6 @@ export default function HomeScreen() {
 
     async function loadSound() {
       try {
-        console.log('准备加载本地音频...');
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
           staysActiveInBackground: true,
@@ -36,35 +36,8 @@ export default function HomeScreen() {
         soundObject = sound;
         setSound(sound);
         setAudioLoaded(true);
-
-        if (isWeb) {
-          console.log('Web环境：音频已加载，等待用户播放');
-        } else {
-          setIsPlaying(true);
-          console.log('App环境：背景音乐已自动开始播放');
-        }
       } catch (error) {
         console.error('加载本地音频失败:', error);
-        // 尝试使用备用网络音频
-        try {
-          console.log('尝试使用网络音频作为备用...');
-          const { sound } = await Audio.Sound.createAsync(
-            { uri: 'https://assets.mixkit.co/music/download/mixkit-games-worldbeat-668.mp3' },
-            { shouldPlay: !isWeb, isLooping: true, volume: 0.5 }
-          );
-          soundObject = sound;
-          setSound(sound);
-          setAudioLoaded(true);
-
-          if (isWeb) {
-            console.log('Web环境：备用网络音频已加载，等待用户播放');
-          } else {
-            setIsPlaying(true);
-            console.log('App环境：备用网络音乐已自动开始播放');
-          }
-        } catch (fallbackError) {
-          console.error('备用音频也加载失败:', fallbackError);
-        }
       }
     }
 
@@ -73,7 +46,6 @@ export default function HomeScreen() {
     // 在组件卸载时停止音频播放
     return () => {
       if (soundObject) {
-        console.log('停止音频播放并卸载资源');
         soundObject.unloadAsync();
       }
     };
@@ -94,10 +66,21 @@ export default function HomeScreen() {
     }
   };
 
+  // 根据平台返回不同的容器组件
+  const Container = ({ children }: { children: React.ReactNode }) => {
+    if (isWeb) {
+      // Web环境使用普通View
+      return <View style={styles.container}>{children}</View>;
+    } else {
+      // 移动端使用SafeAreaView以处理顶部和底部安全区域
+      return <SafeAreaView style={styles.container} edges={['top', 'bottom']}>{children}</SafeAreaView>;
+    }
+  };
+
   return (
     <GameProvider>
       <StatusBar backgroundColor="#fff" barStyle="dark-content" />
-      <View style={styles.container}>
+      <Container>
         <View style={styles.header}>
           <View style={styles.hamburgerMenu}>
             <View style={styles.hamburgerLine}></View>
@@ -230,7 +213,7 @@ export default function HomeScreen() {
             </Card>
           </View>
         </ScrollView>
-      </View>
+      </Container>
     </GameProvider>
   );
 }
@@ -241,7 +224,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF5E8',
   },
   header: {
-    paddingTop: 40,
+    paddingTop: Platform.OS === 'web' ? 40 : 10,
     paddingHorizontal: 20,
     paddingBottom: 15,
     backgroundColor: '#FFF',
@@ -279,7 +262,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 12,
-    paddingBottom: 30,
+    paddingBottom: Platform.OS === 'web' ? 30 : 50,
   },
   gamesGrid: {
     flexDirection: 'row',
