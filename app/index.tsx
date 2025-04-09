@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, StatusBar, Image } from 'react-native';
 import { Text, Card, useTheme } from 'react-native-paper';
 import { useRouter } from 'expo-router';
-import { GameProvider } from '../../src/context/GameContext';
+import { GameProvider } from '../src/context/GameContext';
 import { Audio } from 'expo-av';
 
 export default function HomeScreen() {
@@ -12,32 +12,24 @@ export default function HomeScreen() {
 
   // 加载并播放背景音乐
   useEffect(() => {
+    let soundObject: Audio.Sound | null = null;
+
     async function loadSound() {
       try {
-        console.log('正在加载音频...');
+        console.log('正在加载网络音频...');
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+        });
         const { sound } = await Audio.Sound.createAsync(
-          require('../../assets/sounds/background-music.mp3'),
+          { uri: 'https://assets.mixkit.co/music/download/mixkit-games-worldbeat-668.mp3' },
           { shouldPlay: true, isLooping: true, volume: 0.5 }
         );
+        soundObject = sound;
         setSound(sound);
         console.log('背景音乐已开始播放');
       } catch (error) {
         console.error('加载音频失败:', error);
-        // 使用fallback方式加载音频
-        try {
-          await Audio.setAudioModeAsync({
-            playsInSilentModeIOS: true,
-            staysActiveInBackground: true,
-          });
-          const { sound } = await Audio.Sound.createAsync(
-            { uri: 'https://assets.mixkit.co/music/download/mixkit-games-worldbeat-668.mp3' },
-            { shouldPlay: true, isLooping: true, volume: 0.5 }
-          );
-          setSound(sound);
-          console.log('使用网络音频作为备用，背景音乐已开始播放');
-        } catch (fallbackError) {
-          console.error('备用音频也加载失败:', fallbackError);
-        }
       }
     }
 
@@ -45,9 +37,9 @@ export default function HomeScreen() {
 
     // 在组件卸载时停止音频播放
     return () => {
-      if (sound) {
+      if (soundObject) {
         console.log('停止音频播放');
-        sound.unloadAsync();
+        soundObject.unloadAsync();
       }
     };
   }, []);
@@ -74,14 +66,14 @@ export default function HomeScreen() {
             <Card
               style={styles.gameCard}
               mode="elevated"
-              onPress={() => router.push('/games?id=1')}
+              onPress={() => router.push('/play?id=1')}
             >
               <View style={styles.cardWrapper}>
                 <Card.Content style={[styles.gameCardContent, { backgroundColor: '#2E2A3C' }]}>
                   <Text style={[styles.gameCardTitle, { color: '#FFC107' }]}>COLOR BLOCKS</Text>
                   <View style={[styles.gameCardDivider, { backgroundColor: '#FFC107' }]} />
                   <View style={styles.gameImageContainer}>
-                    <Image source={require('../../assets/tetris.png')} style={styles.gameImage} resizeMode="contain" />
+                    <Image source={require('../assets/tetris.png')} style={styles.gameImage} resizeMode="contain" />
                   </View>
                 </Card.Content>
               </View>
@@ -91,14 +83,14 @@ export default function HomeScreen() {
             <Card
               style={styles.gameCard}
               mode="elevated"
-              onPress={() => router.push('/games?id=4')}
+              onPress={() => router.push('/play?id=4')}
             >
               <View style={styles.cardWrapper}>
                 <Card.Content style={[styles.gameCardContent, { backgroundColor: '#222B2D' }]}>
                   <Text style={[styles.gameCardTitle, { color: '#CCCCCC' }]}>BLOCK FILL</Text>
                   <View style={[styles.gameCardDivider, { backgroundColor: '#CCCCCC' }]} />
                   <View style={styles.gameImageContainer}>
-                    <Image source={require('../../assets/2048.png')} style={styles.gameImage} resizeMode="contain" />
+                    <Image source={require('../assets/2048.png')} style={styles.gameImage} resizeMode="contain" />
                   </View>
                 </Card.Content>
               </View>
@@ -108,14 +100,14 @@ export default function HomeScreen() {
             <Card
               style={styles.gameCard}
               mode="elevated"
-              onPress={() => router.push('/games?id=5')}
+              onPress={() => router.push('/play?id=5')}
             >
               <View style={styles.cardWrapper}>
                 <Card.Content style={[styles.gameCardContent, { backgroundColor: '#412C50' }]}>
                   <Text style={[styles.gameCardTitle, { color: '#E0AAFF' }]}>WATER SORT</Text>
                   <View style={[styles.gameCardDivider, { backgroundColor: '#E0AAFF' }]} />
                   <View style={styles.gameImageContainer}>
-                    <Image source={require('../../assets/snake.png')} style={styles.gameImage} resizeMode="contain" />
+                    <Image source={require('../assets/snake.png')} style={styles.gameImage} resizeMode="contain" />
                   </View>
                 </Card.Content>
               </View>
@@ -125,14 +117,14 @@ export default function HomeScreen() {
             <Card
               style={styles.gameCard}
               mode="elevated"
-              onPress={() => router.push('/games?id=2')}
+              onPress={() => router.push('/play?id=2')}
             >
               <View style={styles.cardWrapper}>
                 <Card.Content style={[styles.gameCardContent, { backgroundColor: '#FFE8C4' }]}>
                   <Text style={[styles.gameCardTitle, { color: '#E53935' }]}>FRUIT MERGE</Text>
                   <View style={[styles.gameCardDivider, { backgroundColor: '#E53935' }]} />
                   <View style={styles.gameImageContainer}>
-                    <Image source={require('../../assets/snake.png')} style={styles.gameImage} resizeMode="contain" />
+                    <Image source={require('../assets/snake.png')} style={styles.gameImage} resizeMode="contain" />
                   </View>
                 </Card.Content>
               </View>
@@ -142,14 +134,14 @@ export default function HomeScreen() {
             <Card
               style={styles.gameCard}
               mode="elevated"
-              onPress={() => router.push('/games?id=6')}
+              onPress={() => router.push('/play?id=6')}
             >
               <View style={styles.cardWrapper}>
                 <Card.Content style={[styles.gameCardContent, { backgroundColor: '#FFEEC8' }]}>
                   <Text style={[styles.gameCardTitle, { color: '#8B4513' }]}>FLAPPY JUMP</Text>
                   <View style={[styles.gameCardDivider, { backgroundColor: '#8B4513' }]} />
                   <View style={styles.gameImageContainer}>
-                    <Image source={require('../../assets/minesweeper.png')} style={styles.gameImage} resizeMode="contain" />
+                    <Image source={require('../assets/minesweeper.png')} style={styles.gameImage} resizeMode="contain" />
                     <View style={styles.newBadge}>
                       <Text style={styles.newBadgeText}>NEW!</Text>
                     </View>
@@ -162,14 +154,14 @@ export default function HomeScreen() {
             <Card
               style={styles.gameCard}
               mode="elevated"
-              onPress={() => router.push('/games?id=3')}
+              onPress={() => router.push('/play?id=3')}
             >
               <View style={styles.cardWrapper}>
                 <Card.Content style={[styles.gameCardContent, { backgroundColor: '#1A1A2E' }]}>
                   <Text style={[styles.gameCardTitle, { color: '#9C27B0' }]}>SPIDERETTE</Text>
                   <View style={[styles.gameCardDivider, { backgroundColor: '#9C27B0' }]} />
                   <View style={styles.gameImageContainer}>
-                    <Image source={require('../../assets/minesweeper.png')} style={styles.gameImage} resizeMode="contain" />
+                    <Image source={require('../assets/minesweeper.png')} style={styles.gameImage} resizeMode="contain" />
                     <View style={styles.newBadge}>
                       <Text style={styles.newBadgeText}>NEW!</Text>
                     </View>
@@ -292,4 +284,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
   }
-});
+}); 

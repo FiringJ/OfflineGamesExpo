@@ -22,6 +22,7 @@
     "noImplicitThis": true,
     "baseUrl": ".",
     "paths": {
+      "@/*": ["./*"],
       "*": [
         "src/*"
       ]
@@ -29,6 +30,9 @@
   },
   "include": [
     "src/**/*",
+    "app/**/*",
+    "hooks/**/*",
+    "components/**/*",
     "App.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
