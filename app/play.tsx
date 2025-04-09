@@ -2,27 +2,19 @@ import React from 'react';
 import { StyleSheet, View, SafeAreaView } from 'react-native';
 import { Text, IconButton, useTheme } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { GameProvider } from '../src/context/GameContext';
-import Game2048Component from '../src/games/2048/Game2048';
-import TetrisGame from '../src/games/tetris/TetrisGame';
-import SnakeGame from '../src/games/snake/SnakeGame';
-import MinesweeperGame from '../src/games/minesweeper/MinesweeperGame';
+import { GameProvider } from '../context/GameContext';
+import TetrisGame from '../games/tetris/TetrisGame';
 
 export default function GameScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const gameId = parseInt(id as string) || 4; // 默认为2048游戏
+  const gameId = parseInt(id as string) || 1; // 默认为COLOR BLOCKS游戏
 
   // 获取游戏标题
   const getGameTitle = (id: number) => {
     switch (id) {
       case 1: return 'COLOR BLOCKS';
-      case 2: return 'FRUIT MERGE';
-      case 3: return 'SPIDERETTE';
-      case 4: return 'BLOCK FILL';
-      case 5: return 'WATER SORT';
-      case 6: return 'FLAPPY JUMP';
       default: return '游戏';
     }
   };
@@ -32,12 +24,6 @@ export default function GameScreen() {
     switch (gameId) {
       case 1:
         return <TetrisGame />;
-      case 2:
-        return <SnakeGame />;
-      case 3:
-        return <MinesweeperGame />;
-      case 4:
-        return <Game2048Component />;
       default:
         // 暂未实现的游戏显示敬请期待
         return (

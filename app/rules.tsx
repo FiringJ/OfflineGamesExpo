@@ -64,31 +64,6 @@ export default function RulesScreen() {
           "✅ Stack falling blocks to complete full rows!",
           "⚠️ Game ends when the blocks reach the top of the screen."
         ];
-      case '2': // FRUIT MERGE
-        return [
-          "✅ Merge similar fruits to create larger ones!",
-          "⚠️ Game ends when the board is full and no more merges are possible."
-        ];
-      case '3': // SPIDERETTE
-        return [
-          "✅ Move all cards to the foundation piles in ascending order by suit!",
-          "⚠️ You can only move cards in descending order and alternating colors."
-        ];
-      case '4': // BLOCK FILL
-        return [
-          "✅ Combine number blocks to get to 2048!",
-          "⚠️ The board fills up when no more moves are possible."
-        ];
-      case '5': // WATER SORT
-        return [
-          "✅ Pour water between the tubes until each tube contains only one colour!",
-          "⚠️ You can only pour water of the same color onto water already in a tube."
-        ];
-      case '6': // FLAPPY JUMP
-        return [
-          "✅ Tap to make the bird fly and avoid obstacles!",
-          "⚠️ Game ends when you hit a pipe or the ground."
-        ];
       default:
         return [
           "✅ Follow the game instructions to win!",

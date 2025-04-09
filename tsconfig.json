@@ -22,14 +22,14 @@
     "noImplicitThis": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "*": [
-        "src/*"
-      ]
+      "@/*": ["./*"]
     }
   },
   "include": [
-    "src/**/*",
+    "games/**/*",
+    "context/**/*",
+    "services/**/*",
+    "utils/**/*",
     "app/**/*",
     "hooks/**/*",
     "components/**/*",

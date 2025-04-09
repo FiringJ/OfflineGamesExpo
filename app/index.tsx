@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, StatusBar, Image, TouchableOpacity, Platform } from 'react-native';
 import { Text, Card, useTheme, IconButton } from 'react-native-paper';
 import { useRouter } from 'expo-router';
-import { GameProvider } from '../src/context/GameContext';
+import { GameProvider } from '../context/GameContext';
 import { Audio } from 'expo-av';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -116,97 +116,6 @@ export default function HomeScreen() {
                   <View style={[styles.gameCardDivider, { backgroundColor: '#FFC107' }]} />
                   <View style={styles.gameImageContainer}>
                     <Image source={require('../assets/cards/color-blocks.png')} style={styles.gameImage} resizeMode="contain" />
-                  </View>
-                </Card.Content>
-              </View>
-            </Card>
-
-            {/* 积木填充游戏 - BLOCK FILL */}
-            <Card
-              style={styles.gameCard}
-              mode="elevated"
-              onPress={() => router.push({ pathname: '/rules', params: { id: '4', name: 'BLOCK FILL' } })}
-            >
-              <View style={styles.cardWrapper}>
-                <Card.Content style={[styles.gameCardContent, { backgroundColor: '#222B2D' }]}>
-                  <Text style={[styles.gameCardTitle, { color: '#CCCCCC' }]}>BLOCK FILL</Text>
-                  <View style={[styles.gameCardDivider, { backgroundColor: '#CCCCCC' }]} />
-                  <View style={styles.gameImageContainer}>
-                    <Image source={require('../assets/2048.png')} style={styles.gameImage} resizeMode="contain" />
-                  </View>
-                </Card.Content>
-              </View>
-            </Card>
-
-            {/* 水滴分类游戏 - WATER SORT */}
-            <Card
-              style={styles.gameCard}
-              mode="elevated"
-              onPress={() => router.push({ pathname: '/rules', params: { id: '5', name: 'WATER SORT' } })}
-            >
-              <View style={styles.cardWrapper}>
-                <Card.Content style={[styles.gameCardContent, { backgroundColor: '#412C50' }]}>
-                  <Text style={[styles.gameCardTitle, { color: '#E0AAFF' }]}>WATER SORT</Text>
-                  <View style={[styles.gameCardDivider, { backgroundColor: '#E0AAFF' }]} />
-                  <View style={styles.gameImageContainer}>
-                    <Image source={require('../assets/snake.png')} style={styles.gameImage} resizeMode="contain" />
-                  </View>
-                </Card.Content>
-              </View>
-            </Card>
-
-            {/* 水果合并游戏 - FRUIT MERGE */}
-            <Card
-              style={styles.gameCard}
-              mode="elevated"
-              onPress={() => router.push({ pathname: '/rules', params: { id: '2', name: 'FRUIT MERGE' } })}
-            >
-              <View style={styles.cardWrapper}>
-                <Card.Content style={[styles.gameCardContent, { backgroundColor: '#FFE8C4' }]}>
-                  <Text style={[styles.gameCardTitle, { color: '#E53935' }]}>FRUIT MERGE</Text>
-                  <View style={[styles.gameCardDivider, { backgroundColor: '#E53935' }]} />
-                  <View style={styles.gameImageContainer}>
-                    <Image source={require('../assets/snake.png')} style={styles.gameImage} resizeMode="contain" />
-                  </View>
-                </Card.Content>
-              </View>
-            </Card>
-
-            {/* Flappy Jump游戏 - 带NEW标签 */}
-            <Card
-              style={styles.gameCard}
-              mode="elevated"
-              onPress={() => router.push({ pathname: '/rules', params: { id: '6', name: 'FLAPPY JUMP' } })}
-            >
-              <View style={styles.cardWrapper}>
-                <Card.Content style={[styles.gameCardContent, { backgroundColor: '#FFEEC8' }]}>
-                  <Text style={[styles.gameCardTitle, { color: '#8B4513' }]}>FLAPPY JUMP</Text>
-                  <View style={[styles.gameCardDivider, { backgroundColor: '#8B4513' }]} />
-                  <View style={styles.gameImageContainer}>
-                    <Image source={require('../assets/minesweeper.png')} style={styles.gameImage} resizeMode="contain" />
-                    <View style={styles.newBadge}>
-                      <Text style={styles.newBadgeText}>NEW!</Text>
-                    </View>
-                  </View>
-                </Card.Content>
-              </View>
-            </Card>
-
-            {/* Spiderette游戏 - 带NEW标签 */}
-            <Card
-              style={styles.gameCard}
-              mode="elevated"
-              onPress={() => router.push({ pathname: '/rules', params: { id: '3', name: 'SPIDERETTE' } })}
-            >
-              <View style={styles.cardWrapper}>
-                <Card.Content style={[styles.gameCardContent, { backgroundColor: '#1A1A2E' }]}>
-                  <Text style={[styles.gameCardTitle, { color: '#9C27B0' }]}>SPIDERETTE</Text>
-                  <View style={[styles.gameCardDivider, { backgroundColor: '#9C27B0' }]} />
-                  <View style={styles.gameImageContainer}>
-                    <Image source={require('../assets/minesweeper.png')} style={styles.gameImage} resizeMode="contain" />
-                    <View style={styles.newBadge}>
-                      <Text style={styles.newBadgeText}>NEW!</Text>
-                    </View>
                   </View>
                 </Card.Content>
               </View>
