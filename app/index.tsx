@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, ScrollView, StatusBar, Image } from 'react-native';
-import { Text, Card, useTheme } from 'react-native-paper';
+import { StyleSheet, View, ScrollView, StatusBar, Image, TouchableOpacity, Platform } from 'react-native';
+import { Text, Card, useTheme, IconButton } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { GameProvider } from '../src/context/GameContext';
 import { Audio } from 'expo-av';
@@ -9,27 +9,62 @@ export default function HomeScreen() {
   const theme = useTheme();
   const router = useRouter();
   const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioLoaded, setAudioLoaded] = useState(false);
 
-  // 加载并播放背景音乐
+  // 是否在Web环境
+  const isWeb = Platform.OS === 'web';
+
+  // 加载音频
   useEffect(() => {
     let soundObject: Audio.Sound | null = null;
 
     async function loadSound() {
       try {
-        console.log('正在加载网络音频...');
+        console.log('准备加载本地音频...');
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
           staysActiveInBackground: true,
         });
+
+        // 在原生App中自动播放，在Web中等待用户操作
         const { sound } = await Audio.Sound.createAsync(
-          { uri: 'https://assets.mixkit.co/music/download/mixkit-games-worldbeat-668.mp3' },
-          { shouldPlay: true, isLooping: true, volume: 0.5 }
+          require('../assets/sounds/background-music.mp3'),
+          { shouldPlay: !isWeb, isLooping: true, volume: 0.5 }
         );
+
         soundObject = sound;
         setSound(sound);
-        console.log('背景音乐已开始播放');
+        setAudioLoaded(true);
+
+        if (isWeb) {
+          console.log('Web环境：音频已加载，等待用户播放');
+        } else {
+          setIsPlaying(true);
+          console.log('App环境：背景音乐已自动开始播放');
+        }
       } catch (error) {
-        console.error('加载音频失败:', error);
+        console.error('加载本地音频失败:', error);
+        // 尝试使用备用网络音频
+        try {
+          console.log('尝试使用网络音频作为备用...');
+          const { sound } = await Audio.Sound.createAsync(
+            { uri: 'https://assets.mixkit.co/music/download/mixkit-games-worldbeat-668.mp3' },
+            { shouldPlay: !isWeb, isLooping: true, volume: 0.5 }
+          );
+          soundObject = sound;
+          setSound(sound);
+          setAudioLoaded(true);
+
+          if (isWeb) {
+            console.log('Web环境：备用网络音频已加载，等待用户播放');
+          } else {
+            setIsPlaying(true);
+            console.log('App环境：备用网络音乐已自动开始播放');
+          }
+        } catch (fallbackError) {
+          console.error('备用音频也加载失败:', fallbackError);
+        }
       }
     }
 
@@ -38,11 +73,26 @@ export default function HomeScreen() {
     // 在组件卸载时停止音频播放
     return () => {
       if (soundObject) {
-        console.log('停止音频播放');
+        console.log('停止音频播放并卸载资源');
         soundObject.unloadAsync();
       }
     };
-  }, []);
+  }, [isWeb]);
+
+  // 控制音频播放
+  const toggleAudio = async () => {
+    if (!sound) return;
+
+    if (isPlaying) {
+      console.log('暂停音频播放');
+      await sound.pauseAsync();
+      setIsPlaying(false);
+    } else {
+      console.log('开始音频播放');
+      await sound.playAsync();
+      setIsPlaying(true);
+    }
+  };
 
   return (
     <GameProvider>
@@ -53,6 +103,15 @@ export default function HomeScreen() {
             <View style={styles.hamburgerLine}></View>
             <View style={styles.hamburgerLine}></View>
           </View>
+
+          {/* 仅在Web环境且音频已加载时显示音频控制按钮 */}
+          {isWeb && audioLoaded && (
+            <TouchableOpacity style={styles.audioButton} onPress={toggleAudio}>
+              <Text style={styles.audioButtonIcon}>
+                {isPlaying ? '🔊' : '🔇'}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <ScrollView
@@ -189,6 +248,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   hamburgerMenu: {
     width: 30,
@@ -200,6 +260,19 @@ const styles = StyleSheet.create({
     height: 4,
     backgroundColor: '#D896A8',
     borderRadius: 10,
+  },
+  audioButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFF0F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D896A8',
+  },
+  audioButtonIcon: {
+    fontSize: 20,
   },
   scrollView: {
     flex: 1,
