@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { StyleSheet, View, TouchableOpacity, Platform, Dimensions, PanResponder, Image } from 'react-native';
+import React, { useState, useRef, ChangeEvent, useCallback, useMemo } from 'react';
+import { StyleSheet, View, TouchableOpacity, Platform, Dimensions, PanResponder, Image, Animated } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,32 +14,64 @@ export default function RulesScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { id, name } = params;
-  const sliderRef = useRef(null);
+  const sliderContainerRef = useRef(null);
 
-  // 默认难度设置为中等
+  // 使用Animated.Value实现更流畅的动画
   const [difficulty, setDifficulty] = useState(50);
+  const animatedThumbPosition = useRef(new Animated.Value(50)).current;
+
+  // 更新难度和动画值
+  const updateDifficulty = useCallback((value: number) => {
+    const newValue = Math.max(0, Math.min(100, value));
+    setDifficulty(newValue);
+    Animated.timing(animatedThumbPosition, {
+      toValue: newValue,
+      duration: 5, // 短动画使体验更响应
+      useNativeDriver: false, // 必须为false才能动画布局属性
+    }).start();
+  }, [animatedThumbPosition]);
 
   // 是否在Web环境
   const isWeb = Platform.OS === 'web';
 
-  // 创建滑块的PanResponder
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: (evt, gestureState) => {
-        if (sliderRef.current) {
-          // 滑块宽度是280，计算百分比位置
-          const trackWidth = 280;
-          const newValue = Math.max(0, Math.min(100, ((gestureState.moveX - 40) / trackWidth) * 100));
-          setDifficulty(newValue);
-        }
-      },
-    })
-  ).current;
+  // 使用useCallback优化PanResponder的创建
+  const panResponder = useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    // 记录初始位置，避免拖动时的跳跃
+    onPanResponderGrant: () => {
+      // 不需要额外操作，我们继续使用当前值
+    },
+    onPanResponderMove: (evt, gestureState) => {
+      // 计算横向移动与滑块宽度的比例
+      const trackWidth = 280;
+      const movePosition = gestureState.moveX - (SCREEN_WIDTH - trackWidth) / 2;
+      const percentage = (movePosition / trackWidth) * 100;
+      updateDifficulty(percentage);
+    },
+    onPanResponderRelease: () => {
+      // 结束拖动，不需要额外操作
+    }
+  }), [updateDifficulty]);
+
+  // 处理HTML滑块值变化
+  const handleHtmlSliderChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    updateDifficulty(Number(e.target.value));
+  }, [updateDifficulty]);
+
+  // 处理返回按钮点击
+  const handleBackPress = useCallback(() => {
+    if (isWeb) {
+      // Web环境下直接导航到首页
+      router.push('/');
+    } else {
+      // 移动端尝试返回
+      router.back();
+    }
+  }, [isWeb, router]);
 
   // 根据difficulty值获取难度文本和表情
-  const getDifficultyInfo = () => {
+  const difficultyInfo = useMemo(() => {
     if (difficulty < 30) {
       return { text: 'EASY', emoji: 'easy' };
     } else if (difficulty < 70) {
@@ -47,10 +79,10 @@ export default function RulesScreen() {
     } else {
       return { text: 'HARD', emoji: 'hard' };
     }
-  };
+  }, [difficulty]);
 
   // 获取当前游戏的规则文本
-  const getGameRules = () => {
+  const rules = useMemo(() => {
     // 这里可以根据游戏ID或名称返回不同的规则
     switch (id) {
       case '1': // COLOR BLOCKS
@@ -64,21 +96,21 @@ export default function RulesScreen() {
           "You can only pour water of the same color onto water already in a tube."
         ];
     }
-  };
+  }, [id]);
 
   // 开始游戏
-  const startGame = () => {
+  const startGame = useCallback(() => {
     router.push({
       pathname: '/play',
       params: {
         id,
-        difficulty: getDifficultyInfo().text
+        difficulty: difficultyInfo.text
       }
     });
-  };
+  }, [router, id, difficultyInfo.text]);
 
   // 根据平台返回不同的容器组件
-  const Container = ({ children }: { children: React.ReactNode }) => {
+  const Container = useCallback(({ children }: { children: React.ReactNode }) => {
     if (isWeb) {
       // Web环境使用普通View
       return <View style={styles.container}>{children}</View>;
@@ -86,13 +118,10 @@ export default function RulesScreen() {
       // 移动端使用SafeAreaView以处理顶部和底部安全区域
       return <SafeAreaView style={styles.container} edges={['top', 'bottom']}>{children}</SafeAreaView>;
     }
-  };
-
-  const difficultyInfo = getDifficultyInfo();
-  const rules = getGameRules();
+  }, [isWeb]);
 
   // 渲染表情图标 - 修改为符合UI稿的卡通表情
-  const renderEmoji = () => {
+  const renderEmoji = useCallback(() => {
     // 不同难度显示不同表情
     switch (difficultyInfo.emoji) {
       case 'easy':
@@ -132,7 +161,71 @@ export default function RulesScreen() {
           </View>
         );
     }
-  };
+  }, [difficultyInfo.emoji]);
+
+  // 渲染Web环境的HTML滑块
+  const renderWebSlider = useCallback(() => {
+    return (
+      <View style={styles.webSliderContainer}>
+        {/* 以下是原生HTML滑块 */}
+        {Platform.OS === 'web' && (
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={difficulty}
+            onChange={handleHtmlSliderChange}
+            style={{
+              width: 280,
+              height: 40,
+              appearance: 'none',
+              background: 'linear-gradient(to right, #FF9800, #CCCCCC, #4169E1)',
+              outline: 'none',
+              borderRadius: 10,
+              cursor: 'pointer',
+            }}
+          />
+        )}
+
+        {/* 滑块外观（仅用于显示，实际交互由HTML原生控件处理） */}
+        <View
+          style={[
+            styles.sliderThumb,
+            { left: `${difficulty}%`, pointerEvents: 'none' }
+          ]}
+        />
+      </View>
+    );
+  }, [difficulty, handleHtmlSliderChange]);
+
+  // 移动端滑块的渲染优化
+  const renderMobileSlider = useCallback(() => {
+    const thumbLeft = animatedThumbPosition.interpolate({
+      inputRange: [0, 100],
+      outputRange: ['0%', '100%']
+    });
+
+    return (
+      <View
+        style={styles.sliderContainer}
+        ref={sliderContainerRef}
+        {...panResponder.panHandlers}
+      >
+        <LinearGradient
+          colors={['#FF9800', '#CCCCCC', '#4169E1']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.sliderTrack}
+        />
+        <Animated.View
+          style={[
+            styles.sliderThumb,
+            { left: thumbLeft }
+          ]}
+        />
+      </View>
+    );
+  }, [animatedThumbPosition, panResponder.panHandlers]);
 
   return (
     <Container>
@@ -149,7 +242,7 @@ export default function RulesScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={handleBackPress}
         >
           <Ionicons name="chevron-back" size={28} color="white" />
         </TouchableOpacity>
@@ -171,25 +264,8 @@ export default function RulesScreen() {
 
           <Text style={styles.difficultyText}>{difficultyInfo.text}</Text>
 
-          {/* 滑动条 - 更粗、带渐变 */}
-          <View
-            style={styles.sliderContainer}
-            ref={sliderRef}
-            {...panResponder.panHandlers}
-          >
-            <LinearGradient
-              colors={['#FF9800', '#CCCCCC', '#4169E1']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.sliderTrack}
-            />
-            <View
-              style={[
-                styles.sliderThumb,
-                { left: `${difficulty}%` }
-              ]}
-            />
-          </View>
+          {/* 滑动条 - 基于平台选择实现 */}
+          {isWeb ? renderWebSlider() : renderMobileSlider()}
           <Text style={styles.dragText}>Drag to adjust difficulty</Text>
         </View>
 
@@ -405,6 +481,14 @@ const styles = StyleSheet.create({
     width: 280,
     height: 50,
     marginBottom: 15,
+    justifyContent: 'center',
+  },
+  webSliderContainer: {
+    position: 'relative',
+    width: 280,
+    height: 50,
+    marginBottom: 15,
+    justifyContent: 'center',
   },
   sliderTrack: {
     position: 'absolute',
@@ -436,6 +520,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
+    zIndex: 5,
   },
   dragText: {
     fontSize: 18,
@@ -499,59 +584,5 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 28,
     fontWeight: 'bold',
-  },
-  bottomDecoration: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    height: 100,
-    zIndex: -1,
-  },
-  grassImage: {
-    width: '100%',
-    height: '100%',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-  },
-  cloud: {
-    position: 'absolute',
-    backgroundColor: 'white',
-    borderRadius: 20,
-    zIndex: 1,
-  },
-  cloud1: {
-    width: 100,
-    height: 30,
-    bottom: 80,
-    left: '15%',
-  },
-  cloud2: {
-    width: 70,
-    height: 25,
-    bottom: 70,
-    right: '20%',
-  },
-  cloudBump: {
-    position: 'absolute',
-    backgroundColor: 'white',
-    borderRadius: 50,
-  },
-  cloudBump1: {
-    width: 30,
-    height: 30,
-    top: -15,
-    left: 15,
-  },
-  cloudBump2: {
-    width: 40,
-    height: 40,
-    top: -20,
-    left: 40,
-  },
-  cloudBump3: {
-    width: 30,
-    height: 30,
-    top: -15,
-    left: 70,
   },
 }); 
