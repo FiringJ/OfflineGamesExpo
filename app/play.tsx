@@ -1,13 +1,11 @@
 import React from 'react';
 import { StyleSheet, View, SafeAreaView } from 'react-native';
-import { Text, IconButton, useTheme } from 'react-native-paper';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Text } from 'react-native-paper';
+import { useLocalSearchParams } from 'expo-router';
 import { GameProvider } from '../context/GameContext';
 import ColorBlocksGame from '../games/color-blocks/ColorBlocksGame';
 
 export default function GameScreen() {
-  const theme = useTheme();
-  const router = useRouter();
   const { id } = useLocalSearchParams();
   const gameId = parseInt(id as string) || 1; // 默认为COLOR BLOCKS游戏
 
@@ -37,16 +35,6 @@ export default function GameScreen() {
   return (
     <GameProvider>
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <IconButton
-            icon="arrow-left"
-            size={24}
-            onPress={() => router.push('/')}
-          />
-          <Text style={styles.title}>{getGameTitle(gameId)}</Text>
-          <View style={{ width: 48 }} />
-        </View>
-
         <View style={styles.gameContainer}>
           {renderGame()}
         </View>
@@ -76,7 +64,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
   },
   comingSoon: {
     flex: 1,
