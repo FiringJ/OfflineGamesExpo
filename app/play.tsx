@@ -3,7 +3,7 @@ import { StyleSheet, View, SafeAreaView } from 'react-native';
 import { Text, IconButton, useTheme } from 'react-native-paper';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { GameProvider } from '../context/GameContext';
-import TetrisGame from '../games/tetris/TetrisGame';
+import ColorBlocksGame from '../games/color-blocks/ColorBlocksGame';
 
 export default function GameScreen() {
   const theme = useTheme();
@@ -23,7 +23,7 @@ export default function GameScreen() {
   const renderGame = () => {
     switch (gameId) {
       case 1:
-        return <TetrisGame />;
+        return <ColorBlocksGame />;
       default:
         // 暂未实现的游戏显示敬请期待
         return (
